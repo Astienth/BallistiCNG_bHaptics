@@ -13,6 +13,7 @@ using NgData;
 using NgSettings;
 using NgGame;
 using NgEvents;
+using System.IO;
 
 namespace BallistiCNG_bHaptics
 {
@@ -21,18 +22,41 @@ namespace BallistiCNG_bHaptics
         public static TactsuitVR tactsuitVr;
         public static bool isUsingLeftAirBrake = false;
         public static bool isUsingRightAirBrake = false;
+        private MelonPreferences_Category UserConfig;
+        public static MelonPreferences_Entry<int> speedIntensityPercentage;
 
         public override void OnInitializeMelon()
         {
             tactsuitVr = new TactsuitVR();
             LoggerInstance.Msg("Mods bHaptics loaded");
             tactsuitVr.PlaybackHaptics("HeartBeat");
+            UserConfig = MelonPreferences.CreateCategory("UserConfig");
+            speedIntensityPercentage = UserConfig.CreateEntry<int>("speedIntensityPercentage", 50);
+            UserConfig.SetFilePath("UserConfig/BallistiCNG_bHaptics.cfg");
+            UserConfig.SaveToFile();
         }
 
         public override void OnLateInitializeMelon()
         {          
             NgRaceEvents.OnEventComplete += new NgRaceEvents.EventCompleteDelegate(this.OnGamePaused);
             NgUiEvents.OnGamePause += new NgUiEvents.GamePausedDelegate(this.OnGamePaused);
+            MelonEvents.OnApplicationQuit.Subscribe(FixWeirdUserFolder);
+        }
+
+        public void FixWeirdUserFolder()
+        {
+            //trying to fix weird bug with melonloader
+            for (int i = 1; i <= 10; i++)
+            {
+                if (Directory.Exists("UserData_BCK"+i))
+                {
+                    if (Directory.Exists("UserData"))
+                    {
+                        Directory.Delete("UserData", true);
+                    }
+                    Directory.Move("UserData_BCK"+i, "UserData");
+                }
+            }
         }
 
         public void OnGamePaused()
@@ -154,7 +178,8 @@ namespace BallistiCNG_bHaptics
                         //when using airbrakes
                         if (isUsingLeftAirBrake || isUsingRightAirBrake)
                         {
-                            TactsuitVR.speedIntensity = 0.15f * speed / speedClass;
+                            TactsuitVR.speedIntensity = (float)(speedIntensityPercentage.Value / 30)
+                                * speed / speedClass;
                             ballistiCNG_bHaptics.tactsuitVr.StopSpeed();
                             ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics(
                                 "AirBrakeVest_"+(isUsingLeftAirBrake ? "L" : "R")
@@ -166,7 +191,8 @@ namespace BallistiCNG_bHaptics
                         }
                         else
                         {
-                            TactsuitVR.speedIntensity = 0.4f * speed / speedClass;
+                            TactsuitVR.speedIntensity = (float)(speedIntensityPercentage.Value / 10)
+                                * speed / speedClass;
                         }
                     }
                     else
