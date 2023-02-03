@@ -23,7 +23,8 @@ namespace BallistiCNG_bHaptics
         public static bool isUsingLeftAirBrake = false;
         public static bool isUsingRightAirBrake = false;
         private MelonPreferences_Category UserConfig;
-        public static MelonPreferences_Entry<int> speedIntensityPercentage;
+        public static int speedIntensityPercentage;
+        public static MelonPreferences_Entry<int> userValue;
 
         public override void OnInitializeMelon()
         {
@@ -31,9 +32,18 @@ namespace BallistiCNG_bHaptics
             LoggerInstance.Msg("Mods bHaptics loaded");
             tactsuitVr.PlaybackHaptics("HeartBeat");
             UserConfig = MelonPreferences.CreateCategory("UserConfig");
-            speedIntensityPercentage = UserConfig.CreateEntry<int>("speedIntensityPercentage", 50);
+            userValue = UserConfig.CreateEntry<int>("speedIntensityPercentage", 75);
             UserConfig.SetFilePath("UserConfig/BallistiCNG_bHaptics.cfg");
             UserConfig.SaveToFile();
+            if (userValue.Value <= 200 && userValue.Value > 0)
+            {
+                speedIntensityPercentage = userValue.Value;
+            }
+            else
+            {
+                speedIntensityPercentage = 75;
+                LoggerInstance.Msg("Invalid user speedIntensity value in config file");
+            }
         }
 
         public override void OnLateInitializeMelon()
@@ -68,9 +78,9 @@ namespace BallistiCNG_bHaptics
         public class bhaptics_OnEliminated
         {
             [HarmonyPostfix]
-            public static void Postfix()
+            public static void Postfix(ShipController __instance)
             {
-                if (tactsuitVr.suitDisabled)
+                if (tactsuitVr.suitDisabled || !__instance.IsPlayerOne)
                 {
                     return;
                 }
@@ -138,8 +148,17 @@ namespace BallistiCNG_bHaptics
                 bool energyMoreCritical = Traverse.Create(__instance).Field("_energyEvenMoreCriticalWarned").GetValue<bool>();
                 if (energyCritical || energyMoreCritical)
                 {
-                    ballistiCNG_bHaptics.tactsuitVr.StartHeartBeat();
-                    TactsuitVR.heartBeatRate = (energyMoreCritical) ? 500 : 1000;
+                    if (__instance.Eliminated)
+                    {
+                        ballistiCNG_bHaptics.tactsuitVr.StopThreads();
+                        return;
+                    }
+                    else
+                    {
+                        ballistiCNG_bHaptics.tactsuitVr.StartHeartBeat();
+                        TactsuitVR.heartBeatRate = (energyMoreCritical) ? 500 : 1000;
+                    }
+
                 }
                 else
                 {
@@ -178,27 +197,27 @@ namespace BallistiCNG_bHaptics
                         //when using airbrakes
                         if (isUsingLeftAirBrake || isUsingRightAirBrake)
                         {
-                            TactsuitVR.speedIntensity = (float)(speedIntensityPercentage.Value / 30)
-                                * speed / speedClass;
+                            TactsuitVR.speedIntensity = (float) speedIntensityPercentage
+                                * speed / (speedClass * 10) / 20;
+
                             ballistiCNG_bHaptics.tactsuitVr.StopSpeed();
                             ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics(
                                 "AirBrakeVest_"+(isUsingLeftAirBrake ? "L" : "R")
-                                , TactsuitVR.speedIntensity);
+                                , TactsuitVR.speedIntensity * 4);
                             ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics(
                                 "AirBrakeArm_" + (isUsingLeftAirBrake ? "L" : "R")
                                 , TactsuitVR.speedIntensity);
-                            return;
                         }
                         else
                         {
-                            TactsuitVR.speedIntensity = (float)(speedIntensityPercentage.Value / 10)
-                                * speed / speedClass;
+                            TactsuitVR.speedIntensity = (float)speedIntensityPercentage
+                                * speed / (speedClass * 10) / 10;
                         }
                     }
                     else
                     {
                         TactsuitVR.speedEffect = "Deceleration";
-                        TactsuitVR.speedIntensity = 0.6f * speed / speedClass;
+                        TactsuitVR.speedIntensity = 2.75f * speed / speedClass;
                     }
                     ballistiCNG_bHaptics.tactsuitVr.StartSpeed();
                 }

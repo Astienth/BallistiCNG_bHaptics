@@ -27,7 +27,7 @@ namespace MyBhapticsTactsuit
             {
                 Speed_mrse.WaitOne();
                 PlaybackHaptics(speedEffect, speedIntensity);
-                Thread.Sleep(500);
+                Thread.Sleep(50);
             }
         }
 
