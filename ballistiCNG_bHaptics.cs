@@ -80,7 +80,7 @@ namespace BallistiCNG_bHaptics
             [HarmonyPostfix]
             public static void Postfix(ShipController __instance)
             {
-                if (tactsuitVr.suitDisabled || !__instance.IsPlayerOne)
+                if (tactsuitVr.suitDisabled || !__instance.IsPlayer)
                 {
                     return;
                 }
@@ -95,7 +95,7 @@ namespace BallistiCNG_bHaptics
             [HarmonyPostfix]
             public static void Postfix(ShipController __instance, bool __result, float amount)
             {
-                if (tactsuitVr.suitDisabled || !__instance.IsPlayerOne
+                if (tactsuitVr.suitDisabled || !__instance.IsPlayer
                     || !__result || amount < 1.5f)
                 {
                     return;
@@ -112,7 +112,7 @@ namespace BallistiCNG_bHaptics
             public static void Postfix(ShipInput __instance)
             {
                 if (tactsuitVr.suitDisabled 
-                    || !__instance.r.IsPlayerOne)
+                    || !__instance.r.IsPlayer)
                 {
                     return;
                 }
@@ -128,7 +128,7 @@ namespace BallistiCNG_bHaptics
             [HarmonyPostfix]
             public static void Postfix(ShipController __instance)
             {
-                if (tactsuitVr.suitDisabled || !__instance.IsPlayerOne)
+                if (tactsuitVr.suitDisabled || !__instance.IsPlayer)
                 {
                     return;
                 }
@@ -198,15 +198,15 @@ namespace BallistiCNG_bHaptics
                         if (isUsingLeftAirBrake || isUsingRightAirBrake)
                         {
                             TactsuitVR.speedIntensity = (float) speedIntensityPercentage
-                                * speed / (speedClass * 10) / 20;
+                                * speed / (speedClass * 10) / 25;
 
                             ballistiCNG_bHaptics.tactsuitVr.StopSpeed();
                             ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics(
                                 "AirBrakeVest_"+(isUsingLeftAirBrake ? "L" : "R")
-                                , TactsuitVR.speedIntensity * 4);
+                                , TactsuitVR.speedIntensity * 4.5f);
                             ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics(
                                 "AirBrakeArm_" + (isUsingLeftAirBrake ? "L" : "R")
-                                , TactsuitVR.speedIntensity);
+                                , TactsuitVR.speedIntensity * 1.5f);
                         }
                         else
                         {

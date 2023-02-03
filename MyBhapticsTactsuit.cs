@@ -36,7 +36,7 @@ namespace MyBhapticsTactsuit
             while (true)
             {
                 HeartBeat_mrse.WaitOne();
-                PlaybackHaptics("HeartBeat");
+                PlaybackHaptics("HeartBeat", 2f);
                 Thread.Sleep(heartBeatRate);
             }
         }
@@ -45,7 +45,7 @@ namespace MyBhapticsTactsuit
             while (true)
             {
                 Recharging_mrse.WaitOne();
-                PlaybackHaptics("Heal");
+                PlaybackHaptics("Heal", 2f);
                 Thread.Sleep(1000);
             }
         }
