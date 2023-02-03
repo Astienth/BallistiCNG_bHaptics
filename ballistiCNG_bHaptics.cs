@@ -7,6 +7,8 @@ using MelonLoader;
 using bHapticsLib;
 using UnityEngine;
 using MyBhapticsTactsuit;
+using NgShips;
+using HarmonyLib;
 
 namespace BallistiCNG_bHaptics
 {
@@ -20,18 +22,44 @@ namespace BallistiCNG_bHaptics
             LoggerInstance.Msg("Mods bHaptics loaded");
             tactsuitVr.PlaybackHaptics("HeartBeat");
         }
-
-        /*
-        [HarmonyPatch(typeof(BaseGameController), "OnSlowTime", new Type[] { typeof(float) })]
-        public class bhaptics_SlowTime
+                
+        [HarmonyPatch(typeof(ShipController), "TakeDamage")]
+        public class bhaptics_TakeDamage
         {
             [HarmonyPostfix]
-            public static void Postfix(BaseGameController __instance)
+            public static void Postfix(bool __result, float amount)
             {
-                Melon<ballistiCNG_bHaptics>.Logger.Msg("LOGGER");
-                tactsuitVr.PlaybackHaptics("SloMo");
+                if (tactsuitVr.suitDisabled || !__result || amount < 1.5f)
+                {
+                    return;
+                }
+                MelonLogger.Msg("DAMAGE AMOUNT " + amount);
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("VehicleImpact_Vest");
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("VehicleImpact_Arms");
             }
         }
-        */
+
+        [HarmonyPatch(typeof(ShipController), "FixedUpdate")]
+        public class bhaptics_FixedUpdate
+        {
+            [HarmonyPostfix]
+            public static void Postfix(ShipController __instance)
+            {
+                if (tactsuitVr.suitDisabled)
+                {
+                    return;
+                }
+
+                //rechargin pits
+                if (__instance.IsRecharging)
+                {
+                    ballistiCNG_bHaptics.tactsuitVr.StartRecharging();
+                }
+                else
+                {
+                    ballistiCNG_bHaptics.tactsuitVr.StopRecharging();
+                }
+            }
+        }
     }
 }

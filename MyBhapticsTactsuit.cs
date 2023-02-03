@@ -13,15 +13,25 @@ namespace MyBhapticsTactsuit
         public bool suitDisabled = true;
         public bool systemInitialized = false;
 
-        private static ManualResetEvent HeartBeat_mrse = new ManualResetEvent(false);
         public Dictionary<String, FileInfo> FeedbackMap = new Dictionary<String, FileInfo>();
-                
+        private static ManualResetEvent HeartBeat_mrse = new ManualResetEvent(false);
+        private static ManualResetEvent Recharging_mrse = new ManualResetEvent(false);
+
         public void HeartBeatFunc()
         {
             while (true)
             {
                 HeartBeat_mrse.WaitOne();
-                bHaptics.SubmitRegistered("HeartBeat");
+                bHapticsLib.bHapticsManager.PlayRegistered("HeartBeat");
+                Thread.Sleep(1000);
+            }
+        }
+        public void RechargingFunc()
+        {
+            while (true)
+            {
+                Recharging_mrse.WaitOne();
+                bHapticsLib.bHapticsManager.PlayRegistered("Heal");
                 Thread.Sleep(1000);
             }
         }
@@ -37,6 +47,8 @@ namespace MyBhapticsTactsuit
             LOG("Starting HeartBeat thread...");
             Thread HeartBeatThread = new Thread(HeartBeatFunc);
             HeartBeatThread.Start();
+            Thread RechargingThread = new Thread(RechargingFunc);
+            RechargingThread.Start();
         }
 
         public void LOG(string logStr)
@@ -59,7 +71,7 @@ namespace MyBhapticsTactsuit
                 string tactFileStr = File.ReadAllText(fullName);
                 try
                 {
-                    bHaptics.RegisterFeedbackFromTactFile(prefix, tactFileStr);
+                    bHapticsLib.bHapticsManager.RegisterPatternFromJson(prefix, tactFileStr);
                     LOG("Pattern registered: " + prefix);
                 }
                 catch (Exception e) { LOG(e.ToString()); }
@@ -73,15 +85,23 @@ namespace MyBhapticsTactsuit
         {
             if (FeedbackMap.ContainsKey(key))
             {
-                bHaptics.ScaleOption scaleOption = new bHaptics.ScaleOption(intensity, duration);
-                bHaptics.SubmitRegistered(key, key, scaleOption);
+                bHapticsLib.ScaleOption scaleOption = new bHapticsLib.ScaleOption(intensity, duration);
+                bHapticsLib.bHapticsManager.PlayRegistered(key, key, scaleOption);
             }
             else
             {
                 LOG("Feedback not registered: " + key);
             }
         }
+        public void StartRecharging()
+        {
+            Recharging_mrse.Set();
+        }
 
+        public void StopRecharging()
+        {
+            Recharging_mrse.Reset();
+        }
         public void StartHeartBeat()
         {
             HeartBeat_mrse.Set();
@@ -94,12 +114,12 @@ namespace MyBhapticsTactsuit
 
         public bool IsPlaying(String effect)
         {
-            return bHaptics.IsPlaying(effect);
+            return bHapticsLib.bHapticsManager.IsPlaying(effect);
         }
 
         public void StopHapticFeedback(String effect)
         {
-            bHaptics.TurnOff(effect);
+            bHapticsLib.bHapticsManager.StopPlaying(effect);
         }
 
         public void StopAllHapticFeedback()
@@ -107,7 +127,7 @@ namespace MyBhapticsTactsuit
             StopThreads();
             foreach (String key in FeedbackMap.Keys)
             {
-                bHaptics.TurnOff(key);
+                bHapticsLib.bHapticsManager.StopPlaying(key);
             }
         }
 
