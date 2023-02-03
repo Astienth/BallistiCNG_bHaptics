@@ -16,14 +16,28 @@ namespace MyBhapticsTactsuit
         public Dictionary<String, FileInfo> FeedbackMap = new Dictionary<String, FileInfo>();
         private static ManualResetEvent HeartBeat_mrse = new ManualResetEvent(false);
         private static ManualResetEvent Recharging_mrse = new ManualResetEvent(false);
+        private static ManualResetEvent Speed_mrse = new ManualResetEvent(false);
+        public static int heartBeatRate = 1000;
+        public static string speedEffect;
+        public static float speedIntensity;
+
+        public void SpeedFunc()
+        {
+            while (true)
+            {
+                Speed_mrse.WaitOne();
+                PlaybackHaptics(speedEffect, speedIntensity);
+                Thread.Sleep(500);
+            }
+        }
 
         public void HeartBeatFunc()
         {
             while (true)
             {
                 HeartBeat_mrse.WaitOne();
-                bHapticsLib.bHapticsManager.PlayRegistered("HeartBeat");
-                Thread.Sleep(1000);
+                PlaybackHaptics("HeartBeat");
+                Thread.Sleep(heartBeatRate);
             }
         }
         public void RechargingFunc()
@@ -31,7 +45,7 @@ namespace MyBhapticsTactsuit
             while (true)
             {
                 Recharging_mrse.WaitOne();
-                bHapticsLib.bHapticsManager.PlayRegistered("Heal");
+                PlaybackHaptics("Heal");
                 Thread.Sleep(1000);
             }
         }
@@ -49,6 +63,8 @@ namespace MyBhapticsTactsuit
             HeartBeatThread.Start();
             Thread RechargingThread = new Thread(RechargingFunc);
             RechargingThread.Start();
+            Thread SpeedThread = new Thread(SpeedFunc);
+            SpeedThread.Start();
         }
 
         public void LOG(string logStr)
@@ -111,6 +127,15 @@ namespace MyBhapticsTactsuit
         {
             HeartBeat_mrse.Reset();
         }
+        public void StartSpeed()
+        {
+            Speed_mrse.Set();
+        }
+
+        public void StopSpeed()
+        {
+            Speed_mrse.Reset();
+        }
 
         public bool IsPlaying(String effect)
         {
@@ -134,6 +159,8 @@ namespace MyBhapticsTactsuit
         public void StopThreads()
         {
             StopHeartBeat();
+            StopRecharging();
+            StopSpeed();
         }
 
 

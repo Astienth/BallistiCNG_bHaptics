@@ -31,16 +31,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony">
+    <Reference Include="0Harmony, Version=2.9.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\GAMES\BallisticNG\MelonLoader\net35\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\..\..\GAMES\BallisticNG\BallisticNG_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="bHapticsLib">
+    <Reference Include="bHapticsLib, Version=1.0.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\GAMES\BallisticNG\MelonLoader\net35\bHapticsLib.dll</HintPath>
     </Reference>
-    <Reference Include="MelonLoader">
+    <Reference Include="MelonLoader, Version=0.5.7.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\GAMES\BallisticNG\MelonLoader\net35\MelonLoader.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -53,6 +56,10 @@
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\..\..\..\GAMES\BallisticNG\BallisticNG_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\GAMES\BallisticNG\BallisticNG_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\..\..\..\GAMES\BallisticNG\BallisticNG_Data\Managed\UnityEngine.UI.dll</HintPath>
