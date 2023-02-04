@@ -229,6 +229,26 @@ namespace BallistiCNG_bHaptics
             }
         }
 
+        [HarmonyPatch(typeof(ShipInput), "RumbleUpdate")]
+        public class bhaptics_CheckBoostStart
+        {
+            [HarmonyPostfix]
+            public static void Postfix(ShipInput __instance)
+            {
+                if (tactsuitVr.suitDisabled || !__instance.r.IsPlayer)
+                {
+                    return;
+                }
+                if(!Race.HasCountdownFinished && (double)__instance.r.PysSim.enginePower > 0.600000023841858 
+                    && (double)__instance.r.PysSim.enginePower < 0.800000011920929 
+                    && !Cheats.ModernPhysics)
+                {
+                    ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("RecoilVest", 0.1f);
+                    ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("RecoilArm", 0.1f);
+                }
+            }
+        }
+
         [HarmonyPatch(typeof(ShipController), "TakeDamage")]
         public class bhaptics_TakeDamage
         {
@@ -240,8 +260,8 @@ namespace BallistiCNG_bHaptics
                 {
                     return;
                 }
-                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("VehicleImpact_Vest");
-                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("VehicleImpact_Arms");
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("VehicleImpact_Vest", 1.5f);
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("VehicleImpact_Arms", 1.5f);
             }
         }
 
@@ -356,7 +376,7 @@ namespace BallistiCNG_bHaptics
                     else
                     {
                         TactsuitVR.speedEffect = "Deceleration";
-                        TactsuitVR.speedIntensity = 2.75f * speed / speedClass;
+                        TactsuitVR.speedIntensity = 4f * speed / speedClass;
                     }
                     ballistiCNG_bHaptics.tactsuitVr.StartSpeed();
                 }
