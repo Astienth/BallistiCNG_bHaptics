@@ -14,6 +14,8 @@ using NgSettings;
 using NgGame;
 using NgEvents;
 using System.IO;
+using NgPickups;
+using NgPickups.Physical;
 
 namespace BallistiCNG_bHaptics
 {
@@ -73,8 +75,141 @@ namespace BallistiCNG_bHaptics
         {
             tactsuitVr.StopThreads();
         }
+
+        #region WEAPONS
+
+        [HarmonyPatch(typeof(PickupRockets), "OnUse")]
+        public class bhaptics_OnUsePickupRockets
+        {
+            [HarmonyPostfix]
+            public static void Postfix(PickupRockets __instance)
+            {
+                if (tactsuitVr.suitDisabled
+                    || !__instance.R.IsPlayer)
+                {
+                    return;
+                }
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("RecoilVest");
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("RecoilArm");
+            }
+        }
+
+        [HarmonyPatch(typeof(PickupMissiles), "OnUse")]
+        public class bhaptics_OnUsePickupMissiles
+        {
+            [HarmonyPostfix]
+            public static void Postfix(PickupMissiles __instance)
+            {
+                if (tactsuitVr.suitDisabled
+                    || !__instance.R.IsPlayer)
+                {
+                    return;
+                }
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("RecoilVest");
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("RecoilArm");
+            }
+        }
+
+        [HarmonyPatch(typeof(PickupHunter), "OnUse")]
+        public class bhaptics_OnUsePickupHunter
+        {
+            [HarmonyPostfix]
+            public static void Postfix(PickupHunter __instance)
+            {
+                if (tactsuitVr.suitDisabled
+                    || !__instance.R.IsPlayer)
+                {
+                    return;
+                }
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("RecoilVest", 0.5f);
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("RecoilArm", 0.5f);
+            }
+        }
         
-       [HarmonyPatch(typeof(ShipController), "OnEliminated")]
+        [HarmonyPatch(typeof(PickupQuake), "OnUse")]
+        public class bhaptics_OnUsePickupQuake
+        {
+            [HarmonyPostfix]
+            public static void Postfix(PickupQuake __instance)
+            {
+                if (tactsuitVr.suitDisabled
+                    || !__instance.R.IsPlayer)
+                {
+                    return;
+                }
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("RecoilVest");
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("RecoilArm");
+            }
+        }
+
+        [HarmonyPatch(typeof(PickupHellstorm), "OnUse")]
+        public class bhaptics_OnUsePickupHellstorm
+        {
+            [HarmonyPostfix]
+            public static void Postfix(PickupHellstorm __instance)
+            {
+                if (tactsuitVr.suitDisabled
+                    || !__instance.R.IsPlayer)
+                {
+                    return;
+                }
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("RecoilVest", 0.5f);
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("RecoilArm", 0.5f);
+            }
+        }
+
+        [HarmonyPatch(typeof(CannonShot), "Spawn")]
+        public class bhaptics_OnUseCannonShot
+        {
+            [HarmonyPostfix]
+            public static void Postfix(ShipController r)
+            {
+                if (tactsuitVr.suitDisabled
+                    || !r.IsPlayer)
+                {
+                    return;
+                }
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("RecoilVest", 0.4f);
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("RecoilArm", 0.4f);
+            }
+        }
+
+        [HarmonyPatch(typeof(PlasmaShot), "Spawn")]
+        public class bhaptics_OnUsePlasmaShot
+        {
+            [HarmonyPostfix]
+            public static void Postfix(ShipController r)
+            {
+                if (tactsuitVr.suitDisabled
+                    || !r.IsPlayer)
+                {
+                    return;
+                }
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("RecoilVest", 2f);
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("RecoilArm", 2f);
+            }
+        }        
+
+       [HarmonyPatch(typeof(PickupBase), "OnAbsorb")]
+        public class bhaptics_OnAbsordPickup
+        {
+            [HarmonyPostfix]
+            public static void Postfix(PickupBase __instance)
+            {
+                if (tactsuitVr.suitDisabled
+                    || !__instance.R.IsPlayer || __instance.AbsorbAmount == 0)
+                {
+                    return;
+                }
+                ballistiCNG_bHaptics.tactsuitVr.PlaybackHaptics("Heal");
+            }
+        }
+
+        #endregion
+
+        #region PHYSICS
+
+        [HarmonyPatch(typeof(ShipController), "OnEliminated")]
         public class bhaptics_OnEliminated
         {
             [HarmonyPostfix]
@@ -105,7 +240,7 @@ namespace BallistiCNG_bHaptics
             }
         }
 
-        [HarmonyPatch(typeof(ShipInput), "Update")]
+        [HarmonyPatch(typeof(ShipInput), "PlayerInput")]
         public class bhaptics_ShipAirbrake
         {
             [HarmonyPostfix]
@@ -116,13 +251,12 @@ namespace BallistiCNG_bHaptics
                 {
                     return;
                 }
-
-                isUsingLeftAirBrake = Traverse.Create(__instance).Field("_leftAirbrakePressed").GetValue<bool>();
-                isUsingRightAirBrake = Traverse.Create(__instance).Field("_rightAirbrakePressed").GetValue<bool>();               
+                isUsingLeftAirBrake = __instance.AxisLeftAirbrake != 0;
+                isUsingRightAirBrake = __instance.AxisRightAirbrake != 0;               
             }
         }
-
-        [HarmonyPatch(typeof(ShipController), "FixedUpdate")]
+        
+       [HarmonyPatch(typeof(ShipController), "FixedUpdate")]
         public class bhaptics_FixedUpdate
         {
             [HarmonyPostfix]
@@ -227,5 +361,7 @@ namespace BallistiCNG_bHaptics
                 }
             }
         }
+
+        #endregion
     }
 }
