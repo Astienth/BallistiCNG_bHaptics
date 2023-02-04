@@ -33,6 +33,11 @@ namespace BallistiCNG_bHaptics
             tactsuitVr = new TactsuitVR();
             LoggerInstance.Msg("Mods bHaptics loaded");
             tactsuitVr.PlaybackHaptics("HeartBeat");
+            //Config
+            if(!Directory.Exists("UserConfig"))
+            {
+                Directory.CreateDirectory("UserConfig");
+            }
             UserConfig = MelonPreferences.CreateCategory("UserConfig");
             userValue = UserConfig.CreateEntry<int>("speedIntensityPercentage", 75);
             UserConfig.SetFilePath("UserConfig/BallistiCNG_bHaptics.cfg");
@@ -44,7 +49,7 @@ namespace BallistiCNG_bHaptics
             else
             {
                 speedIntensityPercentage = 75;
-                LoggerInstance.Msg("Invalid user speedIntensity value in config file");
+                LoggerInstance.Msg("Invalid user speedIntensity value in config file, default to 75 percent");
             }
         }
 
