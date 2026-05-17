@@ -8,7 +8,7 @@ This mod adds bhaptics (vest and arms) support to the game
 
 # Installation
 
-1. **Download** [MelonLoader.Installer](https://github.com/HerpDerpinstine/MelonLoader/releases/latest/download/MelonLoader.Installer.exe) and **Run**.
+1. **Download** [MelonLoader.Installer](https://github.com/LavaGang/MelonLoader.Installer/releases/latest/download/MelonLoader.Installer.exe) and **Run**.
 
 2. Press **Select** button and **choose the .exe file** of the game in the BallistiCNG folder.
 
