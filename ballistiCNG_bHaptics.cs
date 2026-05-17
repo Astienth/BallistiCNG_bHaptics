@@ -16,6 +16,7 @@ using NgEvents;
 using System.IO;
 using NgPickups;
 using NgPickups.Physical;
+using UnityEngine.SceneManagement;
 
 namespace BallistiCNG_bHaptics
 {
@@ -57,7 +58,13 @@ namespace BallistiCNG_bHaptics
         {          
             NgRaceEvents.OnEventComplete += new NgRaceEvents.EventCompleteDelegate(this.OnGamePaused);
             NgUiEvents.OnGamePause += new NgUiEvents.GamePausedDelegate(this.OnGamePaused);
+            SceneManager.sceneLoaded += OnSceneUnloaded;
             MelonEvents.OnApplicationQuit.Subscribe(FixWeirdUserFolder);
+        }
+
+        private void OnSceneUnloaded(Scene arg0, LoadSceneMode mode)
+        {
+            tactsuitVr.StopThreads();
         }
 
         public void FixWeirdUserFolder()
